@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suki 健身动作指南</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0f13;
+  --card:#1a1a24;
+  --accent:#6c63ff;
+  --accent2:#ff6b9d;
+  --text:#e8e8f0;
+  --muted:#9090a8;
+  --success:#4ecdc4;
+  --warn:#ffbe76;
+  --radius:16px;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  min-height:100vh;
+  padding:0 16px 60px;
+}
+header{
+  text-align:center;
+  padding:40px 0 30px;
+}
+header h1{
+  font-size:1.8rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+header p{
+  color:var(--muted);
+  margin-top:8px;
+  font-size:0.95rem;
+}
+.cards{
+  display:grid;
+  gap:24px;
+  max-width:720px;
+  margin:0 auto;
+}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:28px 24px;
+  border:1px solid rgba(108,99,255,0.15);
+  transition:transform .2s,box-shadow .2s;
+}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(108,99,255,0.15);
+}
+.card-header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+}
+.card-icon{
+  width:52px;height:52px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+  flex-shrink:0;
+}
+.card-icon.legs{background:rgba(78,205,196,0.15);color:var(--success)}
+.card-icon.chest{background:rgba(108,99,255,0.15);color:var(--accent)}
+.card-icon.back{background:rgba(255,107,157,0.15);color:var(--accent2)}
+.card-icon.hamstring{background:rgba(255,190,118,0.15);color:var(--warn)}
+.card-title h2{font-size:1.2rem;margin-bottom:2px}
+.card-title span{font-size:0.82rem;color:var(--muted)}
+.muscle-tag{
+  display:inline-block;
+  background:rgba(108,99,255,0.12);
+  color:var(--accent);
+  font-size:0.75rem;
+  padding:3px 10px;
+  border-radius:20px;
+  margin:0 6px 12px 0;
+}
+.section-label{
+  font-size:0.78rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--muted);
+  margin:16px 0 8px;
+  font-weight:600;
+}
+.steps{list-style:none;counter-reset:step}
+.steps li{
+  counter-increment:step;
+  position:relative;
+  padding-left:32px;
+  margin-bottom:10px;
+  font-size:0.92rem;
+}
+.steps li::before{
+  content:counter(step);
+  position:absolute;left:0;top:1px;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--accent);
+  color:#fff;
+  font-size:0.72rem;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;
+}
+.warn-box{
+  background:rgba(255,190,118,0.08);
+  border-left:3px solid var(--warn);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-top:14px;
+  font-size:0.85rem;
+  color:var(--warn);
+}
+.warn-box strong{display:block;margin-bottom:4px}
+.tip-box{
+  background:rgba(78,205,196,0.08);
+  border-left:3px solid var(--success);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-top:10px;
+  font-size:0.85rem;
+  color:var(--success);
+}
+
+/* Animation area */
+.anim-area{
+  margin:16px 0;
+  display:flex;
+  justify-content:center;
+}
+.figure{
+  position:relative;
+  width:80px;height:120px;
+}
+.figure .head{
+  width:18px;height:18px;
+  border-radius:50%;
+  border:2px solid var(--accent);
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+}
+.figure .body-line{
+  position:absolute;top:18px;left:50%;
+  width:2px;height:40px;
+  background:var(--accent);
+  transform-origin:top center;
+}
+.figure .arm{
+  position:absolute;top:22px;
+  width:2px;height:28px;
+  background:var(--accent);
+  transform-origin:top center;
+}
+.figure .arm.left{left:calc(50% - 12px);transform:rotate(-20deg)}
+.figure .arm.right{left:calc(50% + 10px);transform:rotate(20deg)}
+.figure .leg{
+  position:absolute;top:58px;
+  width:2px;height:34px;
+  background:var(--accent);
+  transform-origin:top center;
+}
+.figure .leg.left{left:calc(50% - 8px);transform:rotate(-5deg)}
+.figure .leg.right{left:calc(50% + 6px);transform:rotate(5deg)}
+
+/* Squat animation */
+.squat-fig .body-line{animation:squat-body 2s ease-in-out infinite}
+.squat-fig .leg{animation:squat-leg 2s ease-in-out infinite}
+@keyframes squat-body{0%,100%{height:40px;top:18px}50%{height:28px;top:30px}}
+@keyframes squat-leg{0%,100%{height:34px;transform:rotate(0deg)}50%{height:24px;transform:rotate(15deg)}}
+
+/* Bench press animation */
+.bench-fig .arm{animation:bench-arm 2s ease-in-out infinite}
+@keyframes bench-arm{0%,100%{height:28px;transform:rotate(-60deg)}50%{height:28px;transform:rotate(-10deg)}}
+.bench-fig .arm.right{animation-name:bench-arm-r}
+@keyframes bench-arm-r{0%,100%{height:28px;transform:rotate(60deg)}50%{height:28px;transform:rotate(10deg)}}
+
+/* Row animation */
+.row-fig .arm{animation:row-arm 2s ease-in-out infinite}
+@keyframes row-arm{0%,100%{transform:rotate(-40deg)}50%{transform:rotate(-80deg)}}
+.row-fig .arm.right{animation-name:row-arm-r}
+@keyframes row-arm-r{0%,100%{transform:rotate(40deg)}50%{transform:rotate(80deg)}}
+
+/* RDL animation */
+.rdl-fig .body-line{animation:rdl-body 2.5s ease-in-out infinite}
+@keyframes rdl-body{0%,100%{transform:rotate(0deg)}50%{transform:rotate(45deg)}}
+.rdl-fig .leg.left{animation:rdl-leg 2.5s ease-in-out infinite}
+@keyframes rdl-leg{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(-5deg)}}
+
+footer{
+  text-align:center;
+  padding:40px 0 20px;
+  color:var(--muted);
+  font-size:0.8rem;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Suki 健身动作指南</h1>
+  <p>4个核心动作 · 分步要领 · 安全第一</p>
+</header>
+
+<div class="cards">
+
+<!-- 1. 哑铃深蹲 -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon legs">🦵</div>
+    <div class="card-title">
+      <h2>哑铃深蹲</h2>
+      <span>Dumbbell Squat</span>
+    </div>
+  </div>
+  <span class="muscle-tag">股四头肌</span>
+  <span class="muscle-tag">臀大肌</span>
+  <span class="muscle-tag">核心</span>
+
+  <div class="anim-area">
+    <div class="figure squat-fig">
+      <div class="head"></div>
+      <div class="body-line"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+      <div class="leg left"></div>
+      <div class="leg right"></div>
+    </div>
+  </div>
+
+  <div class="section-label">动作要领</div>
+  <ol class="steps">
+    <li>双手各持一只哑铃，自然垂于身体两侧，双脚与肩同宽或略宽，脚尖微微外展</li>
+    <li>吸气，屈髋屈膝同时下蹲，想象身后有一把椅子要坐下去，重心落在全脚掌</li>
+    <li>下蹲至大腿与地面平行（或略低），膝盖方向与脚尖一致，不内扣</li>
+    <li>呼气，脚掌蹬地发力站起，臀部主动收紧，回到起始位置</li>
+    <li>全程保持脊柱中立，核心收紧，目视前方</li>
+  </ol>
+
+  <div class="warn-box">
+    <strong>⚠️ 常见错误</strong>
+    膝盖内扣（X型腿）· 脚跟离地 · 过度前倾上半身 · 下蹲时腰椎过度弯曲
+  </div>
+  <div class="tip-box">
+    💡 起始重量建议：从每只手 4-6kg 开始，能完成12次且最后2次有挑战感即可
+  </div>
+</div>
+
+<!-- 2. 哑铃卧推 -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon chest">💪</div>
+    <div class="card-title">
+      <h2>哑铃卧推</h2>
+      <span>Dumbbell Bench Press</span>
+    </div>
+  </div>
+  <span class="muscle-tag">胸大肌</span>
+  <span class="muscle-tag">肱三头肌</span>
+  <span class="muscle-tag">三角肌前束</span>
+
+  <div class="anim-area">
+    <div class="figure bench-fig">
+      <div class="head"></div>
+      <div class="body-line"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+      <div class="leg left"></div>
+      <div class="leg right"></div>
+    </div>
+  </div>
+
+  <div class="section-label">动作要领</div>
+  <ol class="steps">
+    <li>仰卧在平板凳上，双脚踩实地面，肩胛骨后缩下沉（挺胸、夹背）</li>
+    <li>双手各持哑铃，掌心朝前，大臂与身体约呈45-75°角，起始位置哑铃在胸部正上方</li>
+    <li>吸气，控制性地将哑铃下放至胸部两侧，肘关节约呈90°</li>
+    <li>呼气，胸肌发力将哑铃推回起始位置，手臂伸直但不锁死肘关节</li>
+  </ol>
+
+  <div class="warn-box">
+    <strong>⚠️ 常见错误</strong>
+    肩胛骨没有收紧（肩部代偿）· 大臂过度外展至90°（肩关节压力大）· 腰部过度拱起 · 下放速度过快失控
+  </div>
+  <div class="tip-box">
+    💡 起始重量建议：从每只手 3-5kg 开始，确保能稳定控制全程，感受胸肌发力
+  </div>
+</div>
+
+<!-- 3. 坐姿绳索划船 -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon back">🚣</div>
+    <div class="card-title">
+      <h2>坐姿绳索划船</h2>
+      <span>Seated Cable Row</span>
+    </div>
+  </div>
+  <span class="muscle-tag">背阔肌</span>
+  <span class="muscle-tag">菱形肌</span>
+  <span class="muscle-tag">肱二头肌</span>
+  <span class="muscle-tag">中下斜方肌</span>
+
+  <div class="anim-area">
+    <div class="figure row-fig">
+      <div class="head"></div>
+      <div class="body-line"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+      <div class="leg left"></div>
+      <div class="leg right"></div>
+    </div>
+  </div>
+
+  <div class="section-label">动作要领</div>
+  <ol class="steps">
+    <li>坐在划船器上，双脚踩稳踏板，膝盖微屈，挺胸收腹，双手握住把手</li>
+    <li>起始位置手臂伸直，肩胛骨前伸，感受背部被拉伸</li>
+    <li>呼气，以肘部引导向后拉，想象用肘尖去碰身后的墙，肩胛骨后缩夹紧</li>
+    <li>把手拉至腹部位置时短暂停顿1秒，感受背肌收缩</li>
+    <li>吸气，缓慢控制性地还原，不要让重量把你拽回去</li>
+  </ol>
+
+  <div class="warn-box">
+    <strong>⚠️ 常见错误</strong>
+    身体过度前后摆动借力 · 耸肩（斜方肌上束代偿）· 只用手臂拉而不启动背肌 · 还原时突然松手
+  </div>
+  <div class="tip-box">
+    💡 起始重量建议：从能完成15次且背部有明显收缩感的重量开始，通常为器械标注的 10-15kg 档位
+  </div>
+</div>
+
+<!-- 4. 罗马尼亚硬拉 -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon hamstring">🔥</div>
+    <div class="card-title">
+      <h2>罗马尼亚硬拉</h2>
+      <span>Romanian Deadlift (RDL)</span>
+    </div>
+  </div>
+  <span class="muscle-tag">腘绳肌</span>
+  <span class="muscle-tag">臀大肌</span>
+  <span class="muscle-tag">竖脊肌</span>
+
+  <div class="anim-area">
+    <div class="figure rdl-fig">
+      <div class="head"></div>
+      <div class="body-line"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+      <div class="leg left"></div>
+      <div class="leg right"></div>
+    </div>
+  </div>
+
+  <div class="section-label">动作要领</div>
+  <ol class="steps">
+    <li>双手各持哑铃，站立位，双脚与髋同宽，膝盖保持微屈（始终不锁死）</li>
+    <li>吸气，以髋关节为轴心向前折叠身体（屈髋），哑铃沿大腿前侧贴近身体下滑</li>
+    <li>持续屈髋直到感受腘绳肌（大腿后侧）有明显拉伸感，通常哑铃到膝盖下方</li>
+    <li>呼气，臀部主动发力向前推髋站起，想象用臀部把身体"顶"回来</li>
+    <li>全程背部保持平直（中立脊柱），不要圆背或过度挺腰</li>
+  </ol>
+
+  <div class="warn-box">
+    <strong>⚠️ 常见错误</strong>
+    圆背弓腰（腰椎受伤风险高）· 膝盖过度弯曲变成深蹲 · 哑铃远离身体 · 靠腰部力量而非臀部/腘绳肌发力
+  </div>
+  <div class="tip-box">
+    💡 起始重量建议：从每只手 5-8kg 开始，重点感受大腿后侧拉伸和臀部收缩，动作质量优先于重量
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <p>为 Suki 定制 · 安全训练，循序渐进 🏋️‍♀️</p>
+</footer>
+</body>
+</html>
