@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Suki 训练语音提示</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0d0d;
+  --card:#1a1a1a;
+  --card2:#222;
+  --accent:#6c63ff;
+  --accent2:#ff6b9d;
+  --green:#4ecdc4;
+  --warn:#ffbe76;
+  --text:#e8e8f0;
+  --muted:#888;
+  --radius:18px;
+}
+html,body{
+  height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
+body{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  padding:0 16px 40px;
+}
+
+/* ── Header ── */
+header{
+  width:100%;
+  max-width:480px;
+  text-align:center;
+  padding:32px 0 20px;
+}
+header h1{
+  font-size:1.5rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-weight:700;
+}
+header p{font-size:0.85rem;color:var(--muted);margin-top:6px}
+
+/* ── Progress bar ── */
+.progress-wrap{
+  width:100%;
+  max-width:480px;
+  margin-bottom:20px;
+}
+.progress-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:0.78rem;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.progress-bar{
+  width:100%;
+  height:6px;
+  background:#2a2a2a;
+  border-radius:3px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:3px;
+  transition:width 0.5s ease;
+  width:0%;
+}
+
+/* ── Main card ── */
+.main-card{
+  width:100%;
+  max-width:480px;
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:28px 24px;
+  border:1px solid rgba(108,99,255,0.2);
+  margin-bottom:20px;
+  text-align:center;
+  min-height:260px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.state-idle .exercise-name{display:none}
+.state-idle .set-info{display:none}
+.state-idle .reps-info{display:none}
+.state-idle .timer-block{display:none}
+
+.exercise-emoji{
+  font-size:3rem;
+  line-height:1;
+}
+.exercise-name{
+  font-size:1.6rem;
+  font-weight:700;
+  color:var(--text);
+}
+.exercise-name-en{
+  font-size:0.82rem;
+  color:var(--muted);
+  margin-top:-6px;
+}
+.set-info{
+  font-size:1rem;
+  color:var(--accent);
+  font-weight:600;
+  background:rgba(108,99,255,0.12);
+  padding:4px 16px;
+  border-radius:20px;
+}
+.reps-info{
+  font-size:0.95rem;
+  color:var(--muted);
+}
+
+/* idle message */
+.idle-msg{
+  font-size:1.1rem;
+  color:var(--muted);
+  line-height:1.8;
+}
+.idle-msg strong{
+  display:block;
+  font-size:1.4rem;
+  color:var(--text);
+  margin-bottom:8px;
+}
+
+/* ── Timer block ── */
+.timer-block{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+.timer-label{
+  font-size:0.82rem;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.timer-ring{
+  position:relative;
+  width:100px;
+  height:100px;
+}
+.timer-ring svg{
+  transform:rotate(-90deg);
+}
+.timer-ring circle{
+  fill:none;
+  stroke-width:6;
+}
+.timer-ring .bg{stroke:#2a2a2a}
+.timer-ring .fg{
+  stroke:var(--accent);
+  stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear;
+}
+.timer-number{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:1.8rem;
+  font-weight:700;
+  color:var(--text);
+}
+
+/* ── Phase label ── */
+.phase-label{
+  font-size:0.9rem;
+  font-weight:600;
+  padding:6px 18px;
+  border-radius:20px;
+  letter-spacing:0.5px;
+}
+.phase-working{background:rgba(78,205,196,0.15);color:var(--green)}
+.phase-rest{background:rgba(255,190,118,0.15);color:var(--warn)}
+.phase-done{background:rgba(108,99,255,0.15);color:var(--accent)}
+
+/* ── Workout list ── */
+.workout-list{
+  width:100%;
+  max-width:480px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:24px;
+}
+.workout-item{
+  background:var(--card2);
+  border-radius:12px;
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  border:1px solid transparent;
+  transition:border-color 0.3s, background 0.3s;
+}
+.workout-item.active{
+  border-color:var(--accent);
+  background:rgba(108,99,255,0.08);
+}
+.workout-item.done{
+  opacity:0.45;
+}
+.wi-emoji{font-size:1.4rem}
+.wi-info{flex:1}
+.wi-name{font-size:0.95rem;font-weight:600}
+.wi-detail{font-size:0.78rem;color:var(--muted);margin-top:2px}
+.wi-check{
+  font-size:1.2rem;
+  color:var(--green);
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.workout-item.done .wi-check{opacity:1}
+
+/* ── Buttons ── */
+.btn-row{
+  width:100%;
+  max-width:480px;
+  display:flex;
+  gap:12px;
+  margin-bottom:16px;
+}
+.btn{
+  flex:1;
+  padding:16px 12px;
+  border:none;
+  border-radius:14px;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform 0.1s, opacity 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(0.96)}
+.btn-start{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-size:1.15rem;
+  padding:20px;
+}
+.btn-pause{
+  background:#2a2a2a;
+  color:var(--text);
+}
+.btn-reset{
+  background:#2a2a2a;
+  color:var(--muted);
+  flex:0 0 auto;
+  padding:16px 20px;
+}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+
+/* ── Voice status ── */
+.voice-status{
+  font-size:0.78rem;
+  color:var(--muted);
+  text-align:center;
+  margin-top:4px;
+}
+.voice-dot{
+  display:inline-block;
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--muted);
+  margin-right:5px;
+  vertical-align:middle;
+}
+.voice-dot.speaking{
+  background:var(--green);
+  animation:pulse 0.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── Completion overlay ── */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(13,13,13,0.92);
+  z-index:100;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  text-align:center;
+  padding:32px;
+}
+.overlay.show{display:flex}
+.overlay-emoji{font-size:5rem}
+.overlay h2{
+  font-size:1.8rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.overlay p{color:var(--muted);font-size:1rem;line-height:1.7}
+.overlay .btn-start{max-width:240px;width:100%}
+
+footer{
+  color:var(--muted);
+  font-size:0.75rem;
+  text-align:center;
+  margin-top:auto;
+  padding-top:20px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏋️ 训练语音提示</h1>
+  <p>Suki 增肌计划 · 复出阶段</p>
+</header>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span id="progressText">准备开始</span>
+    <span id="progressPct">0%</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- Main card -->
+<div class="main-card" id="mainCard">
+  <div class="idle-msg" id="idleMsg">
+    <strong>准备好了吗？</strong>
+    点击下方「开始训练」<br>语音将全程引导你完成<br>今天的 4 个动作
+  </div>
+
+  <div id="activeContent" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%">
+    <div class="exercise-emoji" id="exEmoji">🦵</div>
+    <div class="phase-label phase-working" id="phaseLabel">训练中</div>
+    <div class="exercise-name" id="exName">哑铃深蹲</div>
+    <div class="exercise-name-en" id="exNameEn">Dumbbell Squat</div>
+    <div class="set-info" id="setInfo">第 1 组 / 共 2 组</div>
+    <div class="reps-info" id="repsInfo">× 10 次</div>
+
+    <div class="timer-block" id="timerBlock" style="display:none">
+      <div class="timer-label" id="timerLabel">休息倒计时</div>
+      <div class="timer-ring">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle class="bg" cx="50" cy="50" r="44"/>
+          <circle class="fg" id="timerArc" cx="50" cy="50" r="44"
+            stroke-dasharray="276.46" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-number" id="timerNum">90</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Workout list -->
+<div class="workout-list" id="workoutList"></div>
+
+<!-- Buttons -->
+<div class="btn-row" style="max-width:480px;width:100%">
+  <button class="btn btn-start" id="btnStart" onclick="startWorkout()">开始训练</button>
+</div>
+<div class="btn-row" style="max-width:480px;width:100%">
+  <button class="btn btn-pause" id="btnPause" onclick="togglePause()" disabled>暂停</button>
+  <button class="btn btn-reset" id="btnReset" onclick="resetWorkout()" disabled>重置</button>
+</div>
+
+<div class="voice-status">
+  <span class="voice-dot" id="voiceDot"></span>
+  <span id="voiceStatusText">语音就绪</span>
+</div>
+
+<!-- Completion overlay -->
+<div class="overlay" id="overlay">
+  <div class="overlay-emoji">🎉</div>
+  <h2>训练完成！</h2>
+  <p>今天的 4 个动作全部完成<br>干得好，Suki！💪<br><br>记得补充蛋白质和水分</p>
+  <button class="btn btn-start" onclick="resetWorkout();document.getElementById('overlay').classList.remove('show')">再来一次</button>
+</div>
+
+<footer>为 Suki 定制 · 安全训练，循序渐进 🏋️‍♀️</footer>
+
+<script>
+// ── Workout data ──
+const EXERCISES = [
+  { name:'哑铃深蹲',   nameEn:'Dumbbell Squat',        emoji:'🦵', sets:2, reps:10,  restSet:90,  restEx:120 },
+  { name:'哑铃卧推',   nameEn:'Dumbbell Bench Press',  emoji:'💪', sets:2, reps:10,  restSet:90,  restEx:120 },
+  { name:'坐姿绳索划船',nameEn:'Seated Cable Row',      emoji:'🚣', sets:2, reps:12,  restSet:90,  restEx:120 },
+  { name:'罗马尼亚硬拉',nameEn:'Romanian Deadlift',     emoji:'🔥', sets:2, reps:10,  restSet:90,  restEx:0   },
+];
+const TOTAL_SETS = EXERCISES.reduce((s,e)=>s+e.sets,0); // 8
+
+// ── State ──
+let state = 'idle'; // idle | working | resting | paused | done
+let exIdx = 0, setIdx = 0;
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let pausedState = null;
+let setsCompleted = 0;
+
+// ── Speech ──
+const synth = window.speechSynthesis;
+let speaking = false;
+
+function speak(text, onEnd) {
+  if (!synth) { onEnd && onEnd(); return; }
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'zh-CN';
+  utt.rate = 0.95;
+  utt.pitch = 1.05;
+  utt.volume = 1;
+  utt.onstart = () => { speaking = true; updateVoiceDot(); };
+  utt.onend = () => { speaking = false; updateVoiceDot(); onEnd && onEnd(); };
+  utt.onerror = () => { speaking = false; updateVoiceDot(); onEnd && onEnd(); };
+  synth.speak(utt);
+}
+
+function updateVoiceDot() {
+  const dot = document.getElementById('voiceDot');
+  const txt = document.getElementById('voiceStatusText');
+  if (speaking) {
+    dot.classList.add('speaking');
+    txt.textContent = '语音播报中…';
+  } else {
+    dot.classList.remove('speaking');
+    txt.textContent = '语音就绪';
+  }
+}
+
+// ── Build workout list ──
+function buildList() {
+  const list = document.getElementById('workoutList');
+  list.innerHTML = '';
+  EXERCISES.forEach((ex, i) => {
+    const div = document.createElement('div');
+    div.className = 'workout-item';
+    div.id = 'wi-' + i;
+    div.innerHTML = `
+      <div class="wi-emoji">${ex.emoji}</div>
+      <div class="wi-info">
+        <div class="wi-name">${ex.name}</div>
+        <div class="wi-detail">${ex.sets} 组 × ${ex.reps} 次</div>
+      </div>
+      <div class="wi-check">✓</div>`;
+    list.appendChild(div);
+  });
+}
+
+// ── Progress ──
+function updateProgress() {
+  const pct = Math.round((setsCompleted / TOTAL_SETS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  const ex = EXERCISES[exIdx];
+  if (state === 'idle') {
+    document.getElementById('progressText').textContent = '准备开始';
+  } else if (state === 'done') {
+    document.getElementById('progressText').textContent = '训练完成 🎉';
+  } else {
+    document.getElementById('progressText').textContent =
+      `动作 ${exIdx+1}/${EXERCISES.length} · 第 ${setIdx+1} 组`;
+  }
+}
+
+// ── Timer ring ──
+const CIRC = 2 * Math.PI * 44; // 276.46
+function updateRing(remaining, total) {
+  const arc = document.getElementById('timerArc');
+  const num = document.getElementById('timerNum');
+  const frac = total > 0 ? remaining / total : 0;
+  arc.style.strokeDashoffset = CIRC * (1 - frac);
+  num.textContent = remaining;
+  // colour shift: green when plenty, orange when low
+  arc.style.stroke = remaining <= 10 ? 'var(--warn)' : 'var(--accent)';
+}
+
+// ── Show active UI ──
+function showActive(ex) {
+  document.getElementById('idleMsg').style.display = 'none';
+  const ac = document.getElementById('activeContent');
+  ac.style.display = 'flex';
+  document.getElementById('exEmoji').textContent = ex.emoji;
+  document.getElementById('exName').textContent = ex.name;
+  document.getElementById('exNameEn').textContent = ex.nameEn;
+  document.getElementById('setInfo').textContent = `第 ${setIdx+1} 组 / 共 ${ex.sets} 组`;
+  document.getElementById('repsInfo').textContent = `× ${ex.reps} 次`;
+}
+
+function setPhase(phase) {
+  const lbl = document.getElementById('phaseLabel');
+  lbl.className = 'phase-label';
+  if (phase === 'working') { lbl.classList.add('phase-working'); lbl.textContent = '训练中'; }
+  else if (phase === 'rest') { lbl.classList.add('phase-rest'); lbl.textContent = '休息中'; }
+  else if (phase === 'done') { lbl.classList.add('phase-done'); lbl.textContent = '完成！'; }
+}
+
+function showTimer(show) {
+  document.getElementById('timerBlock').style.display = show ? 'flex' : 'none';
+}
+
+// ── Mark exercise done in list ──
+function markExDone(i) {
+  const el = document.getElementById('wi-' + i);
+  if (el) { el.classList.remove('active'); el.classList.add('done'); }
+}
+function setActiveEx(i) {
+  EXERCISES.forEach((_,j) => {
+    const el = document.getElementById('wi-' + j);
+    if (el) el.classList.remove('active');
+  });
+  const el = document.getElementById('wi-' + i);
+  if (el) el.classList.add('active');
+}
+
+// ── Core flow ──
+function startWorkout() {
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnPause').disabled = false;
+  document.getElementById('btnReset').disabled = false;
+  exIdx = 0; setIdx = 0; setsCompleted = 0;
+  beginSet();
+}
+
+function beginSet() {
+  state = 'working';
+  const ex = EXERCISES[exIdx];
+  showActive(ex);
+  setPhase('working');
+  showTimer(false);
+  setActiveEx(exIdx);
+  updateProgress();
+
+  const prompt = `开始${ex.name}，第${setIdx+1}组，${ex.reps}次`;
+  speak(prompt, () => {
+    // After announcement, just wait — user taps "组完成" or we auto-advance
+    // We show a "完成本组" button
+    showFinishSetBtn(true);
+  });
+}
+
+function showFinishSetBtn(show) {
+  let btn = document.getElementById('btnFinishSet');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'btnFinishSet';
+    btn.className = 'btn btn-start';
+    btn.style.maxWidth = '480px';
+    btn.style.width = '100%';
+    btn.style.marginBottom = '12px';
+    btn.onclick = finishSet;
+    // insert before btn-row
+    const brow = document.querySelector('.btn-row');
+    brow.parentNode.insertBefore(btn, brow);
+  }
+  btn.style.display = show ? 'block' : 'none';
+  btn.textContent = `✅  第 ${setIdx+1} 组完成`;
+}
+
+function finishSet() {
+  if (state !== 'working') return;
+  showFinishSetBtn(false);
+  setsCompleted++;
+  const ex = EXERCISES[exIdx];
+  speak(`${ex.name}第${setIdx+1}组完成`, () => {
+    // Determine rest duration and next action
+    const isLastSet = (setIdx + 1 >= ex.sets);
+    const isLastEx  = (exIdx + 1 >= EXERCISES.length);
+
+    if (isLastSet && isLastEx) {
+      // Workout done
+      markExDone(exIdx);
+      finishWorkout();
+    } else if (isLastSet) {
+      // Rest between exercises (longer)
+      markExDone(exIdx);
+      startRest(ex.restEx, true);
+    } else {
+      // Rest between sets
+      startRest(ex.restSet, false);
+    }
+  });
+}
+
+function startRest(seconds, isExerciseRest) {
+  state = 'resting';
+  timerTotal = seconds;
+  timerRemaining = seconds;
+  setPhase('rest');
+  showTimer(true);
+  updateRing(timerRemaining, timerTotal);
+
+  const label = document.getElementById('timerLabel');
+  label.textContent = isExerciseRest ? '换动作休息' : '组间休息';
+
+  speak(`休息${seconds}秒`, () => {
+    runTimer(isExerciseRest);
+  });
+}
+
+function runTimer(isExerciseRest) {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (state === 'paused') return;
+    timerRemaining--;
+    updateRing(timerRemaining, timerTotal);
+
+    if (timerRemaining === 10) speak('还有十秒');
+    if (timerRemaining === 3)  speak('三');
+    if (timerRemaining === 2)  speak('二');
+    if (timerRemaining === 1)  speak('一');
+
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      showTimer(false);
+      if (isExerciseRest) {
+        exIdx++;
+        setIdx = 0;
+      } else {
+        setIdx++;
+      }
+      speak('开始', () => beginSet());
+    }
+  }, 1000);
+}
+
+function finishWorkout() {
+  state = 'done';
+  setPhase('done');
+  showTimer(false);
+  showFinishSetBtn(false);
+  updateProgress();
+  document.getElementById('btnPause').disabled = true;
+
+  // Show completion in main card
+  document.getElementById('activeContent').style.display = 'none';
+  document.getElementById('idleMsg').style.display = 'block';
+  document.getElementById('idleMsg').innerHTML =
+    `<strong>🎉 训练完成！</strong>4 个动作全部完成<br>干得好，Suki！💪`;
+
+  speak('今天的训练完成了，干得好！', () => {
+    setTimeout(() => {
+      document.getElementById('overlay').classList.add('show');
+    }, 800);
+  });
+}
+
+function togglePause() {
+  const btn = document.getElementById('btnPause');
+  if (state === 'resting') {
+    state = 'paused';
+    btn.textContent = '继续';
+    synth.pause();
+  } else if (state === 'paused') {
+    state = 'resting';
+    btn.textContent = '暂停';
+    synth.resume();
+  } else if (state === 'working') {
+    // pause mid-set: just mute voice, keep UI
+    state = 'paused';
+    btn.textContent = '继续';
+    synth.cancel();
+  }
+}
+
+function resetWorkout() {
+  clearInterval(timerInterval);
+  synth.cancel();
+  state = 'idle';
+  exIdx = 0; setIdx = 0; setsCompleted = 0;
+  speaking = false;
+  updateVoiceDot();
+
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('btnPause').textContent = '暂停';
+  document.getElementById('btnReset').disabled = true;
+  showTimer(false);
+  showFinishSetBtn(false);
+
+  document.getElementById('activeContent').style.display = 'none';
+  document.getElementById('idleMsg').style.display = 'block';
+  document.getElementById('idleMsg').innerHTML =
+    `<strong>准备好了吗？</strong>点击下方「开始训练」<br>语音将全程引导你完成<br>今天的 4 个动作`;
+
+  // Reset list
+  EXERCISES.forEach((_,i) => {
+    const el = document.getElementById('wi-' + i);
+    if (el) { el.classList.remove('active','done'); }
+  });
+  updateProgress();
+  document.getElementById('progressText').textContent = '准备开始';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+}
+
+// ── Init ──
+buildList();
+updateProgress();
+
+// Warm up speech engine on first user interaction
+document.addEventListener('touchstart', function warmup() {
+  const u = new SpeechSynthesisUtterance('');
+  u.volume = 0;
+  synth.speak(u);
+  document.removeEventListener('touchstart', warmup);
+}, {once:true});
+</script>
+</body>
+</html>
