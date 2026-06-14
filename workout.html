@@ -323,6 +323,93 @@ footer{
   margin-top:auto;
   padding-top:20px;
 }
+
+/* ── Exercise Animations ── */
+.ex-anim-wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:4px 0;
+  min-height:110px;
+}
+
+/* shared figure base */
+.anim-fig{display:block;overflow:visible}
+.anim-fig .ap{
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:2.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.anim-fig .ap-head{
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:2.5;
+}
+/* SVG groups with transform-box so transform-origin works relative to element */
+.anim-fig g{transform-box:fill-box;transform-origin:top center}
+
+/* ── 1. 哑铃卧推 (Bench Press) — lying, arms push up/down ── */
+@keyframes bench-l-arm{
+  0%,100%{transform:rotate(-50deg)}
+  50%{transform:rotate(-5deg)}
+}
+@keyframes bench-r-arm{
+  0%,100%{transform:rotate(50deg)}
+  50%{transform:rotate(5deg)}
+}
+.bench-l-arm{animation:bench-l-arm 1.8s ease-in-out infinite}
+.bench-r-arm{animation:bench-r-arm 1.8s ease-in-out infinite}
+
+/* ── 2. 高位下拉 (Lat Pulldown) — seated, arms overhead to chest ── */
+@keyframes lat-l-arm{
+  0%,100%{transform:rotate(-65deg)}
+  50%{transform:rotate(-10deg)}
+}
+@keyframes lat-r-arm{
+  0%,100%{transform:rotate(65deg)}
+  50%{transform:rotate(10deg)}
+}
+.lat-l-arm{animation:lat-l-arm 2s ease-in-out infinite}
+.lat-r-arm{animation:lat-r-arm 2s ease-in-out infinite}
+
+/* ── 3. 哑铃肩推 (Shoulder Press) — standing, arms push overhead ── */
+@keyframes press-l-arm{
+  0%,100%{transform:rotate(-25deg)}
+  50%{transform:rotate(-85deg)}
+}
+@keyframes press-r-arm{
+  0%,100%{transform:rotate(25deg)}
+  50%{transform:rotate(85deg)}
+}
+.press-l-arm{animation:press-l-arm 1.8s ease-in-out infinite}
+.press-r-arm{animation:press-r-arm 1.8s ease-in-out infinite}
+
+/* ── 4. 坐姿绳索划船 (Seated Cable Row) — seated, arms pull to abdomen ── */
+@keyframes row-l-arm{
+  0%,100%{transform:rotate(-15deg)}
+  50%{transform:rotate(-65deg)}
+}
+@keyframes row-r-arm{
+  0%,100%{transform:rotate(15deg)}
+  50%{transform:rotate(65deg)}
+}
+.row-l-arm{animation:row-l-arm 2s ease-in-out infinite}
+.row-r-arm{animation:row-r-arm 2s ease-in-out infinite}
+
+/* paused state */
+.anim-paused .bench-l-arm,
+.anim-paused .bench-r-arm,
+.anim-paused .lat-l-arm,
+.anim-paused .lat-r-arm,
+.anim-paused .press-l-arm,
+.anim-paused .press-r-arm,
+.anim-paused .row-l-arm,
+.anim-paused .row-r-arm{
+  animation-play-state:paused;
+}
 </style>
 </head>
 <body>
@@ -355,6 +442,11 @@ footer{
     <div class="exercise-name-en" id="exNameEn">Dumbbell Bench Press</div>
     <div class="set-info" id="setInfo">第 1 组 / 共 2 组</div>
     <div class="reps-info" id="repsInfo">× 10 次</div>
+
+    <!-- Exercise animation -->
+    <div class="ex-anim-wrap" id="exAnimWrap">
+      <svg id="exAnimSvg" class="anim-fig" width="64" height="110" viewBox="0 0 64 110"></svg>
+    </div>
 
     <div class="timer-block" id="timerBlock" style="display:none">
       <div class="timer-label" id="timerLabel">休息倒计时</div>
@@ -503,6 +595,7 @@ function showActive(ex) {
   document.getElementById('exNameEn').textContent = ex.nameEn;
   document.getElementById('setInfo').textContent = `第 ${setIdx+1} 组 / 共 ${ex.sets} 组`;
   document.getElementById('repsInfo').textContent = `× ${ex.reps} 次`;
+  updateExAnim(ex.name, true);
 }
 
 function setPhase(phase) {
@@ -611,6 +704,7 @@ function startRest(seconds, isExerciseRest) {
   const label = document.getElementById('timerLabel');
   label.textContent = isExerciseRest ? '换动作休息' : '组间休息';
 
+  setAnimPaused(true);
   speak(`休息${seconds}秒`, () => {
     runTimer(isExerciseRest);
   });
@@ -637,7 +731,7 @@ function runTimer(isExerciseRest) {
       } else {
         setIdx++;
       }
-      speak('开始', () => beginSet());
+      speak('开始', () => { setAnimPaused(false); beginSet(); });
     }
   }, 1000);
 }
@@ -653,6 +747,7 @@ function finishWorkout() {
   // Show completion in main card
   document.getElementById('activeContent').style.display = 'none';
   document.getElementById('idleMsg').style.display = 'block';
+  setAnimPaused(true);
   document.getElementById('idleMsg').innerHTML =
     `<strong>🎉 训练完成！</strong>4 个动作全部完成<br>干得好，Suki！💪`;
 
@@ -710,6 +805,92 @@ function resetWorkout() {
   document.getElementById('progressText').textContent = '准备开始';
   document.getElementById('progressFill').style.width = '0%';
   document.getElementById('progressPct').textContent = '0%';
+}
+
+
+// ── Exercise Animations ──
+const ANIM_SVGS = {
+  // 哑铃卧推: lying figure, arms push up/down
+  // Body horizontal, head on right, arms rotate from shoulder pivot
+  '哑铃卧推': `
+    <line class="ap" x1="8" y1="62" x2="52" y2="62"/>
+    <circle class="ap-head" cx="58" cy="62" r="7"/>
+    <g class="bench-l-arm" style="transform-origin:20px 62px">
+      <line class="ap" x1="20" y1="62" x2="20" y2="40"/>
+    </g>
+    <g class="bench-r-arm" style="transform-origin:38px 62px">
+      <line class="ap" x1="38" y1="62" x2="38" y2="40"/>
+    </g>
+    <line class="ap" x1="8" y1="62" x2="2" y2="82"/>
+    <line class="ap" x1="8" y1="62" x2="14" y2="82"/>
+  `,
+  // 高位下拉: seated, arms from overhead to chest
+  '高位下拉': `
+    <circle class="ap-head" cx="32" cy="18" r="8"/>
+    <line class="ap" x1="32" y1="26" x2="32" y2="66"/>
+    <g class="lat-l-arm" style="transform-origin:24px 30px">
+      <line class="ap" x1="24" y1="30" x2="14" y2="52"/>
+    </g>
+    <g class="lat-r-arm" style="transform-origin:40px 30px">
+      <line class="ap" x1="40" y1="30" x2="50" y2="52"/>
+    </g>
+    <line class="ap" x1="32" y1="66" x2="14" y2="66"/>
+    <line class="ap" x1="32" y1="66" x2="50" y2="66"/>
+    <line class="ap" x1="14" y1="66" x2="14" y2="90"/>
+    <line class="ap" x1="50" y1="66" x2="50" y2="90"/>
+  `,
+  // 哑铃肩推: standing, arms push overhead
+  '哑铃肩推': `
+    <circle class="ap-head" cx="32" cy="16" r="8"/>
+    <line class="ap" x1="32" y1="24" x2="32" y2="66"/>
+    <g class="press-l-arm" style="transform-origin:24px 28px">
+      <line class="ap" x1="24" y1="28" x2="14" y2="50"/>
+    </g>
+    <g class="press-r-arm" style="transform-origin:40px 28px">
+      <line class="ap" x1="40" y1="28" x2="50" y2="50"/>
+    </g>
+    <line class="ap" x1="32" y1="66" x2="20" y2="96"/>
+    <line class="ap" x1="32" y1="66" x2="44" y2="96"/>
+  `,
+  // 坐姿绳索划船: seated, arms pull to abdomen
+  '坐姿绳索划船': `
+    <circle class="ap-head" cx="32" cy="18" r="8"/>
+    <line class="ap" x1="32" y1="26" x2="32" y2="66"/>
+    <g class="row-l-arm" style="transform-origin:24px 34px">
+      <line class="ap" x1="24" y1="34" x2="10" y2="50"/>
+    </g>
+    <g class="row-r-arm" style="transform-origin:40px 34px">
+      <line class="ap" x1="40" y1="34" x2="54" y2="50"/>
+    </g>
+    <line class="ap" x1="32" y1="66" x2="14" y2="66"/>
+    <line class="ap" x1="32" y1="68" x2="50" y2="66"/>
+    <line class="ap" x1="14" y1="66" x2="14" y2="90"/>
+    <line class="ap" x1="50" y1="66" x2="50" y2="90"/>
+  `,
+};
+
+function updateExAnim(exName, playing) {
+  const svg = document.getElementById('exAnimSvg');
+  const wrap = document.getElementById('exAnimWrap');
+  if (!svg || !wrap) return;
+  const markup = ANIM_SVGS[exName];
+  if (markup) {
+    svg.innerHTML = markup;
+  } else {
+    svg.innerHTML = '';
+  }
+  if (playing) {
+    wrap.classList.remove('anim-paused');
+  } else {
+    wrap.classList.add('anim-paused');
+  }
+}
+
+function setAnimPaused(paused) {
+  const wrap = document.getElementById('exAnimWrap');
+  if (!wrap) return;
+  if (paused) wrap.classList.add('anim-paused');
+  else wrap.classList.remove('anim-paused');
 }
 
 // ── Init ──
