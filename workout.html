@@ -92,7 +92,7 @@ header p{font-size:0.85rem;color:var(--muted);margin-top:6px}
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-start;
   gap:12px;
 }
 
@@ -133,6 +133,11 @@ header p{font-size:0.85rem;color:var(--muted);margin-top:6px}
   font-size:1.1rem;
   color:var(--muted);
   line-height:1.8;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
 .idle-msg strong{
   display:block;
@@ -349,19 +354,19 @@ footer{
   stroke-width:2.5;
 }
 /* SVG groups with transform-box so transform-origin works relative to element */
-.anim-fig g{transform-box:fill-box;transform-origin:top center}
+.anim-fig g{transform-box:fill-box}
 
 /* ── 1. 哑铃卧推 (Bench Press) — lying, arms push up/down ── */
 @keyframes bench-l-arm{
-  0%,100%{transform:rotate(-50deg)}
-  50%{transform:rotate(-5deg)}
+  0%,100%{transform:rotate(0deg)}
+  50%{transform:rotate(-35deg)}
 }
 @keyframes bench-r-arm{
-  0%,100%{transform:rotate(50deg)}
-  50%{transform:rotate(5deg)}
+  0%,100%{transform:rotate(0deg)}
+  50%{transform:rotate(35deg)}
 }
-.bench-l-arm{animation:bench-l-arm 1.8s ease-in-out infinite}
-.bench-r-arm{animation:bench-r-arm 1.8s ease-in-out infinite}
+.bench-l-arm{animation:bench-l-arm 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:100% 100%}
+.bench-r-arm{animation:bench-r-arm 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:0% 100%}
 
 /* ── 2. 高位下拉 (Lat Pulldown) — seated, arms overhead to chest ── */
 @keyframes lat-l-arm{
@@ -504,7 +509,7 @@ footer{
 
     <!-- Exercise animation -->
     <div class="ex-anim-wrap" id="exAnimWrap">
-      <svg id="exAnimSvg" class="anim-fig" width="64" height="110" viewBox="0 0 64 110"></svg>
+      <svg id="exAnimSvg" class="anim-fig" width="140" height="80" viewBox="0 0 140 80"></svg>
     </div>
 
     <!-- Exercise instructions -->
@@ -910,18 +915,21 @@ function resetWorkout() {
 // ── Exercise Animations ──
 const ANIM_SVGS = {
   // 哑铃卧推: lying figure, arms push up/down
-  // Body horizontal, head on right, arms rotate from shoulder pivot
+  // Canvas 140×80, figure lying horizontally, head right, feet left
   '哑铃卧推': `
-    <line class="ap" x1="8" y1="62" x2="52" y2="62"/>
-    <circle class="ap-head" cx="58" cy="62" r="7"/>
-    <g class="bench-l-arm" style="transform-origin:20px 62px">
-      <line class="ap" x1="20" y1="62" x2="20" y2="40"/>
+    <line class="ap" x1="10" y1="62" x2="130" y2="62" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <line class="ap" x1="22" y1="50" x2="100" y2="50"/>
+    <circle class="ap-head" cx="110" cy="50" r="9"/>
+    <line class="ap" x1="22" y1="50" x2="10" y2="62"/>
+    <line class="ap" x1="22" y1="50" x2="30" y2="62"/>
+    <g class="bench-l-arm">
+      <line class="ap" x1="65" y1="50" x2="55" y2="28"/>
+      <line class="ap" x1="55" y1="28" x2="45" y2="28"/>
     </g>
-    <g class="bench-r-arm" style="transform-origin:38px 62px">
-      <line class="ap" x1="38" y1="62" x2="38" y2="40"/>
+    <g class="bench-r-arm">
+      <line class="ap" x1="75" y1="50" x2="85" y2="28"/>
+      <line class="ap" x1="85" y1="28" x2="95" y2="28"/>
     </g>
-    <line class="ap" x1="8" y1="62" x2="2" y2="82"/>
-    <line class="ap" x1="8" y1="62" x2="14" y2="82"/>
   `,
   // 高位下拉: seated, arms from overhead to chest
   '高位下拉': `
@@ -972,6 +980,16 @@ function updateExAnim(exName, playing) {
   const svg = document.getElementById('exAnimSvg');
   const wrap = document.getElementById('exAnimWrap');
   if (!svg || !wrap) return;
+  // Set SVG dimensions per exercise
+  if (exName === '哑铃卧推') {
+    svg.setAttribute('width', '140');
+    svg.setAttribute('height', '80');
+    svg.setAttribute('viewBox', '0 0 140 80');
+  } else {
+    svg.setAttribute('width', '64');
+    svg.setAttribute('height', '110');
+    svg.setAttribute('viewBox', '0 0 64 110');
+  }
   const markup = ANIM_SVGS[exName];
   if (markup) {
     svg.innerHTML = markup;
