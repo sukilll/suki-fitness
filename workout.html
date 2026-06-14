@@ -349,10 +349,10 @@ footer{
   </div>
 
   <div id="activeContent" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%">
-    <div class="exercise-emoji" id="exEmoji">🦵</div>
+    <div class="exercise-emoji" id="exEmoji">💪</div>
     <div class="phase-label phase-working" id="phaseLabel">训练中</div>
-    <div class="exercise-name" id="exName">哑铃深蹲</div>
-    <div class="exercise-name-en" id="exNameEn">Dumbbell Squat</div>
+    <div class="exercise-name" id="exName">哑铃卧推</div>
+    <div class="exercise-name-en" id="exNameEn">Dumbbell Bench Press</div>
     <div class="set-info" id="setInfo">第 1 组 / 共 2 组</div>
     <div class="reps-info" id="repsInfo">× 10 次</div>
 
@@ -400,10 +400,10 @@ footer{
 <script>
 // ── Workout data ──
 const EXERCISES = [
-  { name:'哑铃深蹲',   nameEn:'Dumbbell Squat',        emoji:'🦵', sets:2, reps:10,  restSet:90,  restEx:120 },
   { name:'哑铃卧推',   nameEn:'Dumbbell Bench Press',  emoji:'💪', sets:2, reps:10,  restSet:90,  restEx:120 },
-  { name:'坐姿绳索划船',nameEn:'Seated Cable Row',      emoji:'🚣', sets:2, reps:12,  restSet:90,  restEx:120 },
-  { name:'罗马尼亚硬拉',nameEn:'Romanian Deadlift',     emoji:'🔥', sets:2, reps:10,  restSet:90,  restEx:0   },
+  { name:'高位下拉',   nameEn:'Lat Pulldown',          emoji:'🏋️', sets:2, reps:12,  restSet:90,  restEx:120 },
+  { name:'哑铃肩推',   nameEn:'Dumbbell Shoulder Press',emoji:'🙌', sets:2, reps:10,  restSet:90,  restEx:120 },
+  { name:'坐姿绳索划船',nameEn:'Seated Cable Row',      emoji:'🚣', sets:2, reps:12,  restSet:90,  restEx:0   },
 ];
 const TOTAL_SETS = EXERCISES.reduce((s,e)=>s+e.sets,0); // 8
 
