@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}} — 训练参考</title>
+<style>
+  :root {
+    /* 主题色变量 — 拉日 #7c5cff / 推日 #ff6b6b / 腿日 #4ecdc4 */
+    --theme: {{THEME_COLOR}};
+    --theme-soft: rgba(124, 92, 255, 0.08);
+    --bg: #0f0f0f;
+    --card: #1a1a1a;
+    --card-border: #2a2a2a;
+    --text: #e0e0e0;
+    --text-dim: #888;
+    --text-mid: #bbb;
+    --text-bright: #fff;
+    --plan-bg: linear-gradient(135deg, #1a1a2e, #16213e);
+    --plan-border: #2a2a4e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-bright);
+  }
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+  /* 今日计划区 */
+  .workout-plan {
+    background: var(--plan-bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid var(--plan-border);
+  }
+  .workout-plan h2 {
+    font-size: 18px;
+    color: var(--text-bright);
+    margin-bottom: 12px;
+  }
+  .plan-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 14px;
+  }
+  .plan-item:last-child { border-bottom: none; }
+  .plan-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--theme);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .plan-name { color: var(--text-bright); font-weight: 600; }
+  .plan-detail { color: #999; margin-left: auto; }
+  /* 动作卡片 */
+  .exercise {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--card-border);
+  }
+  .exercise-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .exercise-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+  .exercise-target {
+    font-size: 13px;
+    color: #a0a0a0;
+    margin-top: 2px;
+  }
+  .exercise-number {
+    background: var(--theme);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .gif-container {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    background: #111;
+    position: relative;
+  }
+  .gif-container img {
+    width: 100%;
+    display: block;
+    max-height: 400px;
+    object-fit: contain;
+  }
+  .gif-label {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.7);
+    color: #aaa;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .steps { margin-top: 12px; }
+  .steps h3 {
+    font-size: 14px;
+    color: var(--theme);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .steps ol {
+    padding-left: 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #ccc;
+  }
+  .steps ol li { margin-bottom: 4px; }
+  .tips {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: var(--theme-soft);
+    border-radius: 10px;
+    border-left: 3px solid var(--theme);
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .tips b { color: #ddd; }
+  /* 底部训练建议 */
+  .note {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .note b { color: #ccc; }
+  /* 响应式 */
+  @media (max-width: 600px) {
+    h1 { font-size: 24px; }
+    .exercise { padding: 16px; }
+    .exercise-name { font-size: 18px; }
+    .container { padding: 20px 12px 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>{{TITLE_EMOJI}}</h1>
+<p class="subtitle">{{SUBTITLE}}</p>
+
+<div class="workout-plan">
+  <h2>今日计划</h2>
+{{PLAN_ITEMS}}
+</div>
+
+{{EXERCISES}}
+
+<div class="note">
+{{TIPS}}
+</div>
+
+</div>
+</body>
+</html>
