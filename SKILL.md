@@ -107,7 +107,7 @@ GIF 完整 URL：`https://raw.githubusercontent.com/hasaneyldrm/exercises-datase
 
 ## 动作数据库
 
-skill 内置了一份完整的健身动作数据集：`references/exercises-dataset.json`，共 **1324 个动作**，来自 [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset)（基于 ExerciseDB v1，仅限教育/非商业用途）。
+skill 内置了一份完整的健身动作数据集：`references/exercises-dataset.json.gz`（gzip 压缩，解压后为 `references/exercises-dataset.json`），共 **1324 个动作**，来自 [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset)（基于 ExerciseDB v1，仅限教育/非商业用途）。
 
 ### 数据字段
 
@@ -133,8 +133,8 @@ skill 内置了一份完整的健身动作数据集：`references/exercises-data
 ### 查找示例
 
 ```python
-import json
-data = json.load(open("references/exercises-dataset.json"))
+import json, gzip
+data = json.load(gzip.open("references/exercises-dataset.json.gz"))
 # 找所有无器械核心动作
 core = [x for x in data if x["category"] == "waist" and x["equipment"] == "body weight"]
 # 找所有用哑铃练胸的动作
